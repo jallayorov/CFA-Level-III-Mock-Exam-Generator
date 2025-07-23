@@ -1,0 +1,127 @@
+{
+  "processed_files": ["CFA_Level_III_Sample_Content.pdf"],
+  "all_chunks": [
+    {
+      "chunk_id": "sample_1",
+      "content": "Asset allocation is the process of dividing an investment portfolio among different asset categories, such as stocks, bonds, and cash. The process of determining which mix of assets to hold in your portfolio is a very personal one. The asset allocation that works best for you at any given point in your life will depend largely on your time horizon and your ability to tolerate risk. Strategic asset allocation involves setting target allocations for various asset classes and rebalancing periodically. Tactical asset allocation allows for a range around strategic targets to take advantage of market conditions.",
+      "topic": "Asset Allocation",
+      "source_file": "CFA_Level_III_Sample_Content.pdf",
+      "token_count": 120
+    },
+    {
+      "chunk_id": "sample_2", 
+      "content": "Portfolio construction involves the selection of assets and their weights in a portfolio to achieve specific investment objectives while managing risk. Modern portfolio theory suggests that investors can construct portfolios to optimize expected return for a given level of risk. The efficient frontier represents the set of optimal portfolios offering the highest expected return for each level of risk. Factor-based investing has become increasingly popular, focusing on systematic sources of return such as value, momentum, quality, and low volatility factors.",
+      "topic": "Portfolio Construction",
+      "source_file": "CFA_Level_III_Sample_Content.pdf", 
+      "token_count": 115
+    },
+    {
+      "chunk_id": "sample_3",
+      "content": "Performance measurement and attribution are critical components of the investment management process. The Global Investment Performance Standards (GIPS) provide a framework for calculating and presenting investment performance. Key performance metrics include time-weighted returns, money-weighted returns, and risk-adjusted measures such as the Sharpe ratio and information ratio. Performance attribution analysis helps identify the sources of portfolio returns, distinguishing between asset allocation effects, security selection effects, and interaction effects.",
+      "topic": "Performance Management",
+      "source_file": "CFA_Level_III_Sample_Content.pdf",
+      "token_count": 110
+    },
+    {
+      "chunk_id": "sample_4",
+      "content": "Derivatives play an important role in portfolio management for hedging, speculation, and arbitrage. Options, futures, forwards, and swaps each have unique characteristics and applications. Risk management involves identifying, measuring, and controlling various types of risk including market risk, credit risk, liquidity risk, and operational risk. Value at Risk (VaR) is a widely used measure that estimates the potential loss in portfolio value over a specific time horizon at a given confidence level. Stress testing and scenario analysis complement VaR by examining portfolio performance under extreme market conditions.",
+      "topic": "Derivatives & Risk Management", 
+      "source_file": "CFA_Level_III_Sample_Content.pdf",
+      "token_count": 125
+    },
+    {
+      "chunk_id": "sample_5",
+      "content": "The CFA Institute Code of Ethics and Standards of Professional Conduct establish the ethical framework for investment professionals. Key principles include acting with integrity, exercising diligence and thoroughness, maintaining objectivity, and placing client interests first. Investment professionals must avoid conflicts of interest, maintain confidentiality, and ensure fair dealing with all clients. The Standards cover areas such as material nonpublic information, market manipulation, suitability, and performance presentation. Compliance with these standards is essential for maintaining public trust in the investment profession.",
+      "topic": "Ethics & Professional Standards",
+      "source_file": "CFA_Level_III_Sample_Content.pdf",
+      "token_count": 118
+    },
+    {
+      "chunk_id": "sample_6",
+      "content": "Individual portfolio management requires understanding the unique circumstances, objectives, and constraints of private wealth clients. Key considerations include risk tolerance, time horizon, liquidity needs, tax situation, and legal constraints. High-net-worth individuals often have complex financial situations involving multiple asset types, tax jurisdictions, and estate planning considerations. Behavioral finance concepts are particularly relevant in private wealth management, as individual investors may exhibit biases that affect their investment decisions. The portfolio management process must be tailored to each client's specific needs and circumstances.",
+      "topic": "Portfolio Management Pathway",
+      "source_file": "CFA_Level_III_Sample_Content.pdf",
+      "token_count": 130
+    },
+    {
+      "chunk_id": "sample_7",
+      "content": "Institutional portfolio management encompasses the management of assets for pension funds, endowments, foundations, insurance companies, and sovereign wealth funds. Each type of institution has unique characteristics, objectives, and constraints. Pension funds must manage assets to meet future benefit obligations, considering factors such as plan demographics, funding status, and regulatory requirements. Endowments and foundations typically have long investment horizons and spending requirements that must be balanced with the goal of preserving purchasing power. Asset-liability management is crucial for institutional investors to ensure that investment strategies align with their specific liabilities and objectives.",
+      "topic": "Portfolio Management Pathway",
+      "source_file": "CFA_Level_III_Sample_Content.pdf",
+      "token_count": 135
+    }
+  ],
+  "all_eoc_questions": [],
+  "topic_distribution": {
+    "Asset Allocation": 1,
+    "Portfolio Construction": 1, 
+    "Performance Management": 1,
+    "Derivatives & Risk Management": 1,
+    "Ethics & Professional Standards": 1,
+    "Portfolio Management Pathway": 2
+  },
+  "total_tokens": 853,
+  "chunks_by_topic": {
+    "Asset Allocation": [
+      {
+        "chunk_id": "sample_1",
+        "content": "Asset allocation is the process of dividing an investment portfolio among different asset categories, such as stocks, bonds, and cash. The process of determining which mix of assets to hold in your portfolio is a very personal one. The asset allocation that works best for you at any given point in your life will depend largely on your time horizon and your ability to tolerate risk. Strategic asset allocation involves setting target allocations for various asset classes and rebalancing periodically. Tactical asset allocation allows for a range around strategic targets to take advantage of market conditions.",
+        "topic": "Asset Allocation",
+        "source_file": "CFA_Level_III_Sample_Content.pdf",
+        "token_count": 120
+      }
+    ],
+    "Portfolio Construction": [
+      {
+        "chunk_id": "sample_2",
+        "content": "Portfolio construction involves the selection of assets and their weights in a portfolio to achieve specific investment objectives while managing risk. Modern portfolio theory suggests that investors can construct portfolios to optimize expected return for a given level of risk. The efficient frontier represents the set of optimal portfolios offering the highest expected return for each level of risk. Factor-based investing has become increasingly popular, focusing on systematic sources of return such as value, momentum, quality, and low volatility factors.",
+        "topic": "Portfolio Construction", 
+        "source_file": "CFA_Level_III_Sample_Content.pdf",
+        "token_count": 115
+      }
+    ],
+    "Performance Management": [
+      {
+        "chunk_id": "sample_3",
+        "content": "Performance measurement and attribution are critical components of the investment management process. The Global Investment Performance Standards (GIPS) provide a framework for calculating and presenting investment performance. Key performance metrics include time-weighted returns, money-weighted returns, and risk-adjusted measures such as the Sharpe ratio and information ratio. Performance attribution analysis helps identify the sources of portfolio returns, distinguishing between asset allocation effects, security selection effects, and interaction effects.",
+        "topic": "Performance Management",
+        "source_file": "CFA_Level_III_Sample_Content.pdf", 
+        "token_count": 110
+      }
+    ],
+    "Derivatives & Risk Management": [
+      {
+        "chunk_id": "sample_4",
+        "content": "Derivatives play an important role in portfolio management for hedging, speculation, and arbitrage. Options, futures, forwards, and swaps each have unique characteristics and applications. Risk management involves identifying, measuring, and controlling various types of risk including market risk, credit risk, liquidity risk, and operational risk. Value at Risk (VaR) is a widely used measure that estimates the potential loss in portfolio value over a specific time horizon at a given confidence level. Stress testing and scenario analysis complement VaR by examining portfolio performance under extreme market conditions.",
+        "topic": "Derivatives & Risk Management",
+        "source_file": "CFA_Level_III_Sample_Content.pdf",
+        "token_count": 125
+      }
+    ],
+    "Ethics & Professional Standards": [
+      {
+        "chunk_id": "sample_5", 
+        "content": "The CFA Institute Code of Ethics and Standards of Professional Conduct establish the ethical framework for investment professionals. Key principles include acting with integrity, exercising diligence and thoroughness, maintaining objectivity, and placing client interests first. Investment professionals must avoid conflicts of interest, maintain confidentiality, and ensure fair dealing with all clients. The Standards cover areas such as material nonpublic information, market manipulation, suitability, and performance presentation. Compliance with these standards is essential for maintaining public trust in the investment profession.",
+        "topic": "Ethics & Professional Standards",
+        "source_file": "CFA_Level_III_Sample_Content.pdf",
+        "token_count": 118
+      }
+    ],
+    "Portfolio Management Pathway": [
+      {
+        "chunk_id": "sample_6",
+        "content": "Individual portfolio management requires understanding the unique circumstances, objectives, and constraints of private wealth clients. Key considerations include risk tolerance, time horizon, liquidity needs, tax situation, and legal constraints. High-net-worth individuals often have complex financial situations involving multiple asset types, tax jurisdictions, and estate planning considerations. Behavioral finance concepts are particularly relevant in private wealth management, as individual investors may exhibit biases that affect their investment decisions. The portfolio management process must be tailored to each client's specific needs and circumstances.",
+        "topic": "Portfolio Management Pathway",
+        "source_file": "CFA_Level_III_Sample_Content.pdf",
+        "token_count": 130
+      },
+      {
+        "chunk_id": "sample_7",
+        "content": "Institutional portfolio management encompasses the management of assets for pension funds, endowments, foundations, insurance companies, and sovereign wealth funds. Each type of institution has unique characteristics, objectives, and constraints. Pension funds must manage assets to meet future benefit obligations, considering factors such as plan demographics, funding status, and regulatory requirements. Endowments and foundations typically have long investment horizons and spending requirements that must be balanced with the goal of preserving purchasing power. Asset-liability management is crucial for institutional investors to ensure that investment strategies align with their specific liabilities and objectives.",
+        "topic": "Portfolio Management Pathway", 
+        "source_file": "CFA_Level_III_Sample_Content.pdf",
+        "token_count": 135
+      }
+    ]
+  }
+}
