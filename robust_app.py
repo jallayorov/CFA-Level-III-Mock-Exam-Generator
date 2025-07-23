@@ -6,15 +6,18 @@ from datetime import datetime, timedelta
 import random
 from pathlib import Path
 
-# Import our PDF processor
+# Import our PDF processor and content loader
 try:
     import sys
     sys.path.append('.')
     from src.pdf_processor import CFAPDFProcessor
+    from src.content_loader import load_preprocessed_content, ensure_chunks_by_topic, get_content_summary
     PDF_PROCESSOR_AVAILABLE = True
+    CONTENT_LOADER_AVAILABLE = True
 except ImportError as e:
-    print(f"PDF processor import error: {e}")
+    print(f"Import error: {e}")
     PDF_PROCESSOR_AVAILABLE = False
+    CONTENT_LOADER_AVAILABLE = False
 
 st.set_page_config(
     page_title="CFA Level III Mock Exam Generator",
@@ -114,14 +117,35 @@ def get_pdf_files():
     return pdf_files
 
 def process_financial_books():
-    """Process PDFs from financial books folder"""
+    """Process PDFs from financial books folder or load pre-processed content"""
+    
+    # First, try to load pre-processed compressed content (for cloud deployment)
+    if CONTENT_LOADER_AVAILABLE:
+        st.info("🔍 Checking for pre-processed CFA content...")
+        preprocessed_content = load_preprocessed_content()
+        
+        if preprocessed_content:
+            st.success("📦 Found pre-processed CFA content from your books!")
+            
+            # Ensure proper format for question generation
+            preprocessed_content = ensure_chunks_by_topic(preprocessed_content)
+            
+            # Show content summary
+            summary = get_content_summary(preprocessed_content)
+            st.success(f"📚 Loaded {summary.get('total_files', 0)} books with {summary.get('total_chunks', 0)} chunks")
+            st.success(f"📊 Found {summary.get('topics', 0)} CFA topics with content")
+            
+            return preprocessed_content
+    
+    # If no pre-processed content, try local PDF processing
     pdf_files = get_pdf_files()
     
     if not pdf_files:
-        st.error(f"No PDF files found in '{FINANCIAL_BOOKS_DIR}' folder!")
+        st.error(f"❌ No PDF files found in '{FINANCIAL_BOOKS_DIR}' folder!")
+        st.info("💡 For cloud deployment, your CFA books should be pre-processed and included in the repository.")
         return None
     
-    # Check if already processed
+    # Check if already processed locally
     processed_file = f"{PROCESSED_DIR}/financial_books_content.json"
     if os.path.exists(processed_file):
         try:
@@ -134,11 +158,11 @@ def process_financial_books():
             
             if current_files.issubset(existing_files):
                 st.info("📚 Using previously processed content from your financial books")
-                return existing_content
+                return ensure_chunks_by_topic(existing_content)
         except:
             pass
     
-    # Process PDFs
+    # Process PDFs locally
     st.info(f"📖 Processing {len(pdf_files)} CFA books from your financial books folder...")
     
     if PDF_PROCESSOR_AVAILABLE:

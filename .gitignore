@@ -54,8 +54,11 @@ Thumbs.db
 .streamlit/secrets.toml
 
 # Large processed files (will be regenerated)
-data/processed/*.json
+data/processed/financial_books_content.json
 data/exam_sessions/
+
+# Include compressed pre-processed content for cloud deployment
+!data/processed/financial_books_content.json.gz
 
 # Logs
 *.log
