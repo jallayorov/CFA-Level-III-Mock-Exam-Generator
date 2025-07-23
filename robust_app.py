@@ -119,23 +119,41 @@ def get_pdf_files():
 def process_financial_books():
     """Process PDFs from financial books folder or load pre-processed content"""
     
+    # Debug info for troubleshooting
+    st.info(f"🔧 Debug: CONTENT_LOADER_AVAILABLE = {CONTENT_LOADER_AVAILABLE}")
+    
     # First, try to load pre-processed compressed content (for cloud deployment)
     if CONTENT_LOADER_AVAILABLE:
         st.info("🔍 Checking for pre-processed CFA content...")
-        preprocessed_content = load_preprocessed_content()
         
-        if preprocessed_content:
-            st.success("📦 Found pre-processed CFA content from your books!")
-            
-            # Ensure proper format for question generation
-            preprocessed_content = ensure_chunks_by_topic(preprocessed_content)
-            
-            # Show content summary
-            summary = get_content_summary(preprocessed_content)
-            st.success(f"📚 Loaded {summary.get('total_files', 0)} books with {summary.get('total_chunks', 0)} chunks")
-            st.success(f"📊 Found {summary.get('topics', 0)} CFA topics with content")
-            
-            return preprocessed_content
+        # Check if compressed file exists
+        import os
+        compressed_file = "data/processed/financial_books_content.json.gz"
+        file_exists = os.path.exists(compressed_file)
+        st.info(f"📁 Compressed file exists: {file_exists} ({compressed_file})")
+        
+        if file_exists:
+            try:
+                preprocessed_content = load_preprocessed_content()
+                
+                if preprocessed_content:
+                    st.success("📦 Found pre-processed CFA content from your books!")
+                    
+                    # Ensure proper format for question generation
+                    preprocessed_content = ensure_chunks_by_topic(preprocessed_content)
+                    
+                    # Show content summary
+                    summary = get_content_summary(preprocessed_content)
+                    st.success(f"📚 Loaded {summary.get('total_files', 0)} books with {summary.get('total_chunks', 0)} chunks")
+                    st.success(f"📊 Found {summary.get('topics', 0)} CFA topics with content")
+                    
+                    return preprocessed_content
+                else:
+                    st.warning("⚠️ Pre-processed content file found but failed to load")
+            except Exception as e:
+                st.error(f"❌ Error loading pre-processed content: {str(e)}")
+        else:
+            st.warning("⚠️ Compressed content file not found in cloud deployment")
     
     # If no pre-processed content, try local PDF processing
     pdf_files = get_pdf_files()
