@@ -15,13 +15,18 @@ from datetime import datetime, timedelta
 import uuid
 import time
 
-# Try to import the simple text loader
+# Try to import the enhanced question generator and text loader
 try:
-    from src.simple_text_loader import load_cfa_text_content, get_random_cfa_content, get_content_summary
+    from src.simple_text_loader import load_cfa_text_content, get_content_summary
+    from src.enhanced_question_generator import (
+        generate_unique_questions_from_text, 
+        get_topic_distribution_summary,
+        CFA_TOPIC_WEIGHTS
+    )
     TEXT_LOADER_AVAILABLE = True
-except ImportError:
+except ImportError as e:
     TEXT_LOADER_AVAILABLE = False
-    st.error("❌ Simple text loader not available")
+    st.error(f"❌ Enhanced question generator not available: {e}")
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -89,94 +94,7 @@ def load_session_state():
         except Exception as e:
             st.error(f"Error loading session: {e}")
 
-def generate_questions_from_text(session_type, cfa_content, num_questions=1):
-    """Generate questions using simple text content"""
-    
-    if not cfa_content:
-        st.error("❌ No CFA content available for question generation")
-        return None
-    
-    questions = []
-    
-    for i in range(num_questions):
-        # Get random content for question generation
-        content_chunk = get_random_cfa_content(cfa_content, max_chars=4000)
-        
-        if session_type == "AM":
-            prompt = f"""
-Based on this CFA Level III content, create 1 AM session constructed response question.
-
-Content: {content_chunk}
-
-Return ONLY a JSON object with this structure:
-{{
-    "question": "Detailed scenario and question text",
-    "points": 15,
-    "topic": "Portfolio Management",
-    "answer_guidance": "Key points for grading",
-    "question_id": "AM_{i+1}"
-}}
-"""
-        else:  # PM
-            prompt = f"""
-Based on this CFA Level III content, create 1 PM session item set with 3 multiple choice questions.
-
-Content: {content_chunk}
-
-Return ONLY a JSON object with this structure:
-{{
-    "vignette": "Case study scenario",
-    "item_set_id": "PM_{i+1}",
-    "questions": [
-        {{
-            "question_id": "PM_{i+1}_Q1",
-            "question": "Question 1 text",
-            "options": ["A. Option A", "B. Option B", "C. Option C"],
-            "correct": "A",
-            "explanation": "Why A is correct"
-        }},
-        {{
-            "question_id": "PM_{i+1}_Q2",
-            "question": "Question 2 text", 
-            "options": ["A. Option A", "B. Option B", "C. Option C"],
-            "correct": "B",
-            "explanation": "Why B is correct"
-        }},
-        {{
-            "question_id": "PM_{i+1}_Q3",
-            "question": "Question 3 text",
-            "options": ["A. Option A", "B. Option B", "C. Option C"], 
-            "correct": "C",
-            "explanation": "Why C is correct"
-        }}
-    ]
-}}
-"""
-        
-        try:
-            response = openai.chat.completions.create(
-                model=os.getenv('OPENAI_MODEL', 'gpt-4-turbo-preview'),
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
-                max_tokens=1000
-            )
-            
-            # Clean response
-            raw_response = response.choices[0].message.content.strip()
-            if raw_response.startswith('```json'):
-                raw_response = raw_response[7:]
-            if raw_response.endswith('```'):
-                raw_response = raw_response[:-3]
-            raw_response = raw_response.strip()
-            
-            question_data = json.loads(raw_response)
-            questions.append(question_data)
-            
-        except Exception as e:
-            st.error(f"❌ Error generating question {i+1}: {str(e)}")
-            return None
-    
-    return questions
+# Remove old function - now using enhanced generator from imported module
 
 def grade_am_answer(question, answer):
     """Grade AM constructed response using AI"""
@@ -319,6 +237,25 @@ def main():
                     st.write(f"AM Answers: {am_count}")
                     st.write(f"PM Answers: {pm_count}")
                 
+                # CFA Topic Weights
+                st.write("🎯 CFA Level III Topic Weights:")
+                for topic, weight in CFA_TOPIC_WEIGHTS.items():
+                    st.write(f"  {topic}: {weight*100:.0f}%")
+                
+                # Current topic distribution
+                if st.session_state.get('am_questions') or st.session_state.get('pm_questions'):
+                    st.write("📈 Current Question Topics:")
+                    all_questions = []
+                    if st.session_state.get('am_questions'):
+                        all_questions.extend(st.session_state.am_questions)
+                    if st.session_state.get('pm_questions'):
+                        all_questions.extend(st.session_state.pm_questions)
+                    
+                    if all_questions:
+                        topic_dist = get_topic_distribution_summary(all_questions)
+                        for topic, count in topic_dist.items():
+                            st.write(f"  {topic}: {count} questions")
+                
                 # Auto-save indicator
                 if st.button("💾 Save Progress"):
                     save_session_state()
@@ -331,10 +268,15 @@ def main():
                 st.subheader("AM Session - Constructed Response")
                 
                 if st.button("Generate AM Questions", key="gen_am"):
-                    with st.spinner("🤖 Generating AM questions from your CFA books..."):
-                        am_questions = generate_questions_from_text("AM", cfa_content, 4)
+                    with st.spinner("🤖 Generating diverse AM questions from your CFA books..."):
+                        am_questions = generate_unique_questions_from_text("AM", cfa_content, 4)
                         if am_questions:
                             st.session_state.am_questions = am_questions
+                            
+                            # Show topic distribution
+                            topic_dist = get_topic_distribution_summary(am_questions)
+                            st.success(f"✅ Generated 4 AM questions across topics: {', '.join(topic_dist.keys())}")
+                            
                             save_session_state()
                             st.rerun()
                 
@@ -394,10 +336,15 @@ def main():
                 st.subheader("PM Session - Item Sets")
                 
                 if st.button("Generate PM Item Sets", key="gen_pm"):
-                    with st.spinner("🤖 Generating PM item sets from your CFA books..."):
-                        pm_questions = generate_questions_from_text("PM", cfa_content, 2)
+                    with st.spinner("🤖 Generating diverse PM item sets from your CFA books..."):
+                        pm_questions = generate_unique_questions_from_text("PM", cfa_content, 2)
                         if pm_questions:
                             st.session_state.pm_questions = pm_questions
+                            
+                            # Show topic distribution
+                            topic_dist = get_topic_distribution_summary(pm_questions)
+                            st.success(f"✅ Generated 2 PM item sets across topics: {', '.join(topic_dist.keys())}")
+                            
                             save_session_state()
                             st.rerun()
                 
