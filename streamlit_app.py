@@ -21,7 +21,12 @@ try:
     from src.enhanced_question_generator import (
         generate_unique_questions_from_text, 
         get_topic_distribution_summary,
-        CFA_TOPIC_WEIGHTS
+        CFA_TOPIC_WEIGHTS,
+        select_topics_for_exam
+    )
+    from src.realistic_am_generator import (
+        generate_realistic_am_question,
+        grade_am_sub_question
     )
     TEXT_LOADER_AVAILABLE = True
 except ImportError as e:
@@ -268,67 +273,143 @@ def main():
                 st.subheader("AM Session - Constructed Response")
                 
                 if st.button("Generate AM Questions", key="gen_am"):
-                    with st.spinner("🤖 Generating diverse AM questions from your CFA books..."):
-                        am_questions = generate_unique_questions_from_text("AM", cfa_content, 4)
+                    with st.spinner("🤖 Generating realistic AM questions with sub-parts from your CFA books..."):
+                        # Select topics for 4 AM questions
+                        selected_topics = select_topics_for_exam(4)
+                        am_questions = []
+                        
+                        for i, topic in enumerate(selected_topics):
+                            question = generate_realistic_am_question(cfa_content, topic, i+1)
+                            if question:
+                                am_questions.append(question)
+                        
                         if am_questions:
                             st.session_state.am_questions = am_questions
                             
-                            # Show topic distribution
-                            topic_dist = get_topic_distribution_summary(am_questions)
-                            st.success(f"✅ Generated 4 AM questions across topics: {', '.join(topic_dist.keys())}")
+                            # Show topic distribution and structure
+                            topics = [q.get('topic', 'Unknown') for q in am_questions]
+                            structures = [q.get('structure_type', 'Unknown') for q in am_questions]
+                            st.success(f"✅ Generated {len(am_questions)} realistic AM questions:")
+                            for i, (topic, structure) in enumerate(zip(topics, structures)):
+                                st.info(f"  Q{i+1}: {topic} ({structure})")
                             
                             save_session_state()
                             st.rerun()
                 
-                # Display AM questions
+                # Display AM questions with sub-parts
                 if st.session_state.get('am_questions'):
                     for i, question in enumerate(st.session_state.am_questions):
-                        st.write(f"### Question {i+1}")
-                        st.write(question.get('question', 'No question'))
-                        st.write(f"**Points:** {question.get('points', 15)}")
-                        st.write(f"**Topic:** {question.get('topic', 'Unknown')}")
+                        st.write(f"### Question {i+1}: {question.get('topic', 'Unknown')}")
+                        st.write(f"**Total Points:** {question.get('total_points', 15)}")
                         
-                        # Answer input
-                        answer_key = f"am_answer_{i}"
+                        # Main scenario
+                        st.write("**Scenario:**")
+                        st.write(question.get('main_scenario', 'No scenario provided'))
+                        
+                        # Initialize answers for this question
                         if 'am_answers' not in st.session_state:
                             st.session_state.am_answers = {}
                         
-                        answer = st.text_area(
-                            f"Your Answer for Question {i+1}:",
-                            value=st.session_state.am_answers.get(answer_key, ""),
-                            height=150,
-                            key=f"am_input_{i}"
-                        )
+                        # Display sub-questions
+                        sub_questions = question.get('sub_questions', [])
+                        total_score = 0
+                        max_total_score = 0
                         
-                        # Save answer on change
-                        if answer != st.session_state.am_answers.get(answer_key, ""):
-                            st.session_state.am_answers[answer_key] = answer
-                            save_session_state()
-                        
-                        # Grade button
-                        if st.button(f"Grade Question {i+1}", key=f"grade_am_{i}"):
-                            if answer.strip():
-                                with st.spinner("🤖 AI grading your answer..."):
-                                    grade_result = grade_am_answer(question, answer)
-                                    st.session_state[f"am_grade_{i}"] = grade_result
-                                    save_session_state()
-                            else:
-                                st.warning("Please provide an answer first.")
-                        
-                        # Show grade if available
-                        if f"am_grade_{i}" in st.session_state:
-                            grade = st.session_state[f"am_grade_{i}"]
-                            score = grade.get('score', 0)
-                            max_points = question.get('points', 15)
+                        for sub_idx, sub_q in enumerate(sub_questions):
+                            part = sub_q.get('part', 'A')
+                            points = sub_q.get('points', 0)
+                            max_total_score += points
                             
-                            if score >= max_points * 0.7:
-                                st.success(f"🎉 Score: {score}/{max_points}")
-                            elif score >= max_points * 0.5:
-                                st.warning(f"⚠️ Score: {score}/{max_points}")
-                            else:
-                                st.error(f"❌ Score: {score}/{max_points}")
+                            st.write(f"**Part {part} ({points} points):**")
+                            st.write(sub_q.get('question', 'No question'))
                             
-                            st.info(f"**Feedback:** {grade.get('feedback', 'No feedback')}")
+                            # Show additional info if available
+                            if sub_q.get('additional_info'):
+                                st.info(f"**Additional Information:** {sub_q.get('additional_info')}")
+                            
+                            # Answer input for this sub-question
+                            answer_key = f"am_q{i}_part{part}"
+                            answer = st.text_area(
+                                f"Your Answer for Part {part}:",
+                                value=st.session_state.am_answers.get(answer_key, ""),
+                                height=120,
+                                key=f"am_input_{i}_{part}"
+                            )
+                            
+                            # Save answer on change
+                            if answer != st.session_state.am_answers.get(answer_key, ""):
+                                st.session_state.am_answers[answer_key] = answer
+                                save_session_state()
+                            
+                            # Grade and Show Solution buttons
+                            col1, col2 = st.columns(2)
+                            
+                            with col1:
+                                if st.button(f"Grade Part {part}", key=f"grade_am_{i}_{part}"):
+                                    if answer.strip():
+                                        with st.spinner(f"🤖 AI grading Part {part}..."):
+                                            grade_result = grade_am_sub_question(sub_q, answer, part)
+                                            st.session_state[f"am_grade_{i}_{part}"] = grade_result
+                                            save_session_state()
+                                    else:
+                                        st.warning("Please provide an answer first.")
+                            
+                            with col2:
+                                if st.button(f"Show Model Solution {part}", key=f"solution_am_{i}_{part}"):
+                                    st.session_state[f"show_solution_{i}_{part}"] = True
+                            
+                            # Show grade if available
+                            grade_key = f"am_grade_{i}_{part}"
+                            if grade_key in st.session_state:
+                                grade = st.session_state[grade_key]
+                                score = grade.get('score', 0)
+                                max_points = grade.get('max_points', points)
+                                total_score += score
+                                
+                                if score >= max_points * 0.8:
+                                    st.success(f"🎉 Part {part} Score: {score}/{max_points}")
+                                elif score >= max_points * 0.6:
+                                    st.warning(f"⚠️ Part {part} Score: {score}/{max_points}")
+                                else:
+                                    st.error(f"❌ Part {part} Score: {score}/{max_points}")
+                                
+                                # Detailed feedback
+                                st.write("**Detailed Feedback:**")
+                                st.write(grade.get('detailed_feedback', 'No feedback'))
+                                
+                                # Points breakdown
+                                if grade.get('points_breakdown'):
+                                    st.write("**Points Breakdown:**")
+                                    for breakdown in grade['points_breakdown']:
+                                        st.write(f"  • {breakdown.get('criterion', 'Unknown')}: {breakdown.get('earned', 0)}/{breakdown.get('possible', 0)} - {breakdown.get('comment', '')}")
+                                
+                                # Areas for improvement
+                                if grade.get('improvement_areas'):
+                                    st.write("**Areas for Improvement:**")
+                                    for area in grade['improvement_areas']:
+                                        st.write(f"  • {area}")
+                            
+                            # Show model solution if requested
+                            solution_key = f"show_solution_{i}_{part}"
+                            if st.session_state.get(solution_key, False):
+                                st.success("**📚 Model Solution from CFA Curriculum:**")
+                                st.write(sub_q.get('model_solution', 'No model solution available'))
+                                
+                                if sub_q.get('key_concepts'):
+                                    st.write("**Key Concepts:**")
+                                    for concept in sub_q['key_concepts']:
+                                        st.write(f"  • {concept}")
+                                
+                                if st.button(f"Hide Solution {part}", key=f"hide_solution_{i}_{part}"):
+                                    st.session_state[solution_key] = False
+                                    st.rerun()
+                            
+                            st.write("---")
+                        
+                        # Overall question score
+                        if total_score > 0:
+                            overall_pct = (total_score / max_total_score) * 100 if max_total_score > 0 else 0
+                            st.metric(f"Question {i+1} Total Score", f"{total_score}/{max_total_score}", f"{overall_pct:.1f}%")
                         
                         st.divider()
             
