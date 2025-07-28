@@ -22,6 +22,7 @@ try:
         generate_unique_questions_from_text, 
         get_topic_distribution_summary,
         CFA_TOPIC_WEIGHTS,
+        PM_TOPIC_WEIGHTS,
         select_topics_for_exam
     )
     from src.realistic_am_generator import (
@@ -243,8 +244,12 @@ def main():
                     st.write(f"PM Answers: {pm_count}")
                 
                 # CFA Topic Weights
-                st.write("🎯 CFA Level III Topic Weights:")
+                st.write("🎯 AM Session Topics:")
                 for topic, weight in CFA_TOPIC_WEIGHTS.items():
+                    st.write(f"  {topic}: {weight*100:.0f}%")
+                
+                st.write("🎯 PM Session Topics (includes Ethics):")
+                for topic, weight in PM_TOPIC_WEIGHTS.items():
                     st.write(f"  {topic}: {weight*100:.0f}%")
                 
                 # Current topic distribution
@@ -274,8 +279,8 @@ def main():
                 
                 if st.button("Generate AM Questions", key="gen_am"):
                     with st.spinner("🤖 Generating realistic AM questions with sub-parts from your CFA books..."):
-                        # Select topics for 4 AM questions
-                        selected_topics = select_topics_for_exam(4)
+                        # Select topics for 4 AM questions (no Ethics)
+                        selected_topics = select_topics_for_exam(4, "AM")
                         am_questions = []
                         
                         for i, topic in enumerate(selected_topics):
@@ -417,14 +422,26 @@ def main():
                 st.subheader("PM Session - Item Sets")
                 
                 if st.button("Generate PM Item Sets", key="gen_pm"):
-                    with st.spinner("🤖 Generating diverse PM item sets from your CFA books..."):
-                        pm_questions = generate_unique_questions_from_text("PM", cfa_content, 2)
+                    with st.spinner("🤖 Generating PM item sets with Ethics from your CFA books..."):
+                        # Select topics for 2 PM item sets (includes Ethics)
+                        selected_topics = select_topics_for_exam(2, "PM")
+                        pm_questions = []
+                        
+                        for i, topic in enumerate(selected_topics):
+                            pm_question = generate_unique_questions_from_text("PM", cfa_content, 1)
+                            if pm_question and len(pm_question) > 0:
+                                # Ensure the question has the selected topic
+                                pm_question[0]['topic'] = topic
+                                pm_questions.extend(pm_question)
+                        
                         if pm_questions:
                             st.session_state.pm_questions = pm_questions
                             
                             # Show topic distribution
-                            topic_dist = get_topic_distribution_summary(pm_questions)
-                            st.success(f"✅ Generated 2 PM item sets across topics: {', '.join(topic_dist.keys())}")
+                            topics = [q.get('topic', 'Unknown') for q in pm_questions]
+                            st.success(f"✅ Generated {len(pm_questions)} PM item sets (6 questions each):")
+                            for i, topic in enumerate(topics):
+                                st.info(f"  Item Set {i+1}: {topic} (6 questions)")
                             
                             save_session_state()
                             st.rerun()

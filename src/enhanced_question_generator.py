@@ -18,6 +18,16 @@ CFA_TOPIC_WEIGHTS = {
     "Risk Management": 0.15       # 10-15%
 }
 
+# PM Session includes Ethics (AM session does not)
+PM_TOPIC_WEIGHTS = {
+    "Portfolio Management": 0.30,  # 25-30%
+    "Asset Allocation": 0.18,     # 15-18%
+    "Portfolio Construction": 0.18, # 15-18%
+    "Performance Management": 0.09, # 7-9%
+    "Risk Management": 0.13,      # 10-13%
+    "Ethics & Professional Standards": 0.12  # 10-15%
+}
+
 # Keywords for topic classification
 TOPIC_KEYWORDS = {
     "Portfolio Management": [
@@ -44,6 +54,13 @@ TOPIC_KEYWORDS = {
         "risk management", "VaR", "value at risk", "expected shortfall", "stress testing",
         "scenario analysis", "derivatives", "hedging", "options", "futures",
         "swaps", "currency risk", "interest rate risk", "credit risk"
+    ],
+    "Ethics & Professional Standards": [
+        "ethics", "professional standards", "code of ethics", "standards of practice",
+        "fiduciary duty", "conflicts of interest", "disclosure", "fair dealing",
+        "loyalty", "prudence", "care", "client confidentiality", "material nonpublic information",
+        "insider trading", "research objectivity", "investment recommendations",
+        "suitability", "performance presentation", "compliance", "professional conduct"
     ]
 }
 
@@ -96,11 +113,18 @@ def get_content_by_topic(cfa_content: Dict, target_topic: str = None, max_chars:
     # Fallback
     return chunk, detected_topic
 
-def select_topics_for_exam(num_questions: int) -> List[str]:
+def select_topics_for_exam(num_questions: int, session_type: str = "AM") -> List[str]:
     """Select topics for exam questions based on CFA weights"""
     topics = []
-    topic_list = list(CFA_TOPIC_WEIGHTS.keys())
-    weights = list(CFA_TOPIC_WEIGHTS.values())
+    
+    # Use different topic weights for AM vs PM sessions
+    if session_type == "PM":
+        topic_weights = PM_TOPIC_WEIGHTS
+    else:
+        topic_weights = CFA_TOPIC_WEIGHTS
+    
+    topic_list = list(topic_weights.keys())
+    weights = list(topic_weights.values())
     
     for _ in range(num_questions):
         selected_topic = random.choices(topic_list, weights=weights)[0]
@@ -183,7 +207,7 @@ Create a question that specifically tests {detected_topic} concepts. Return ONLY
 """
             else:  # PM
                 prompt = f"""
-Based on this CFA Level III content about {detected_topic}, create 1 PM session item set with 3 multiple choice questions.
+Based on this CFA Level III content about {detected_topic}, create 1 PM session item set with 6 multiple choice questions.
 
 Content: {content_chunk}
 
@@ -211,6 +235,27 @@ Create questions that specifically test {detected_topic} concepts. Return ONLY a
         {{
             "question_id": "PM_{i+1}_Q3",
             "question": "Question 3 text about {detected_topic}",
+            "options": ["A. Option A", "B. Option B", "C. Option C"],
+            "correct": "C", 
+            "explanation": "Why C is correct (relating to {detected_topic})"
+        }},
+        {{
+            "question_id": "PM_{i+1}_Q4",
+            "question": "Question 4 text about {detected_topic}",
+            "options": ["A. Option A", "B. Option B", "C. Option C"],
+            "correct": "A", 
+            "explanation": "Why A is correct (relating to {detected_topic})"
+        }},
+        {{
+            "question_id": "PM_{i+1}_Q5",
+            "question": "Question 5 text about {detected_topic}",
+            "options": ["A. Option A", "B. Option B", "C. Option C"],
+            "correct": "B", 
+            "explanation": "Why B is correct (relating to {detected_topic})"
+        }},
+        {{
+            "question_id": "PM_{i+1}_Q6",
+            "question": "Question 6 text about {detected_topic}",
             "options": ["A. Option A", "B. Option B", "C. Option C"],
             "correct": "C", 
             "explanation": "Why C is correct (relating to {detected_topic})"
