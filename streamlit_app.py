@@ -194,6 +194,10 @@ def main():
     st.title("🎓 CFA Level III Mock Exam Generator")
     st.subheader("Original Exam Scenarios Based on Your CFA Book Concepts! 🚀")
     
+    # Version information
+    VERSION = "v08082025"  # Format: vMMDDYYYY
+    st.caption(f"📋 Version: {VERSION} | Original Scenario Generation")
+    
     # Initialize session
     load_session_state()
     
@@ -216,7 +220,11 @@ def main():
             
             # Sidebar for exam controls
             with st.sidebar:
-                st.header("🎯 Exam Controls")
+                st.header("📋 Exam Information")
+                
+                # Version info in sidebar
+                VERSION = "v08082025"  # Format: vMMDDYYYY
+                st.info(f"📋 **Version:** {VERSION}\n🎆 **Feature:** Original Scenario Generation")
                 
                 # Session info
                 st.info(f"📝 Session: {st.session_state.session_id}")
