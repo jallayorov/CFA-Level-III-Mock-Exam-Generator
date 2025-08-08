@@ -29,6 +29,10 @@ try:
         generate_realistic_am_question,
         grade_am_sub_question
     )
+    from src.original_question_generator import (
+        generate_original_am_question,
+        generate_original_pm_itemset
+    )
     TEXT_LOADER_AVAILABLE = True
 except ImportError as e:
     TEXT_LOADER_AVAILABLE = False
@@ -188,7 +192,7 @@ def display_timer():
 
 def main():
     st.title("🎓 CFA Level III Mock Exam Generator")
-    st.subheader("Enhanced Text-Based System with Full Exam Features! 🚀")
+    st.subheader("Original Exam Scenarios Based on Your CFA Book Concepts! 🚀")
     
     # Initialize session
     load_session_state()
@@ -278,13 +282,13 @@ def main():
                 st.subheader("AM Session - Constructed Response")
                 
                 if st.button("Generate AM Questions", key="gen_am"):
-                    with st.spinner("🤖 Generating realistic AM questions with sub-parts from your CFA books..."):
+                    with st.spinner("🤖 Generating original AM scenarios based on your CFA book concepts..."):
                         # Select topics for 4 AM questions (no Ethics)
                         selected_topics = select_topics_for_exam(4, "AM")
                         am_questions = []
                         
                         for i, topic in enumerate(selected_topics):
-                            question = generate_realistic_am_question(cfa_content, topic, i+1)
+                            question = generate_original_am_question(cfa_content, topic, i+1)
                             if question:
                                 am_questions.append(question)
                         
@@ -294,9 +298,9 @@ def main():
                             # Show topic distribution and structure
                             topics = [q.get('topic', 'Unknown') for q in am_questions]
                             structures = [q.get('structure_type', 'Unknown') for q in am_questions]
-                            st.success(f"✅ Generated {len(am_questions)} realistic AM questions:")
+                            st.success(f"✅ Generated {len(am_questions)} original AM questions:")
                             for i, (topic, structure) in enumerate(zip(topics, structures)):
-                                st.info(f"  Q{i+1}: {topic} ({structure})")
+                                st.info(f"  Q{i+1}: {topic} ({structure}) - Original scenario")
                             
                             save_session_state()
                             st.rerun()
@@ -422,26 +426,24 @@ def main():
                 st.subheader("PM Session - Item Sets")
                 
                 if st.button("Generate PM Item Sets", key="gen_pm"):
-                    with st.spinner("🤖 Generating PM item sets with Ethics from your CFA books..."):
+                    with st.spinner("🤖 Generating original PM scenarios based on your CFA book concepts..."):
                         # Select topics for 2 PM item sets (includes Ethics)
                         selected_topics = select_topics_for_exam(2, "PM")
                         pm_questions = []
                         
                         for i, topic in enumerate(selected_topics):
-                            pm_question = generate_unique_questions_from_text("PM", cfa_content, 1)
-                            if pm_question and len(pm_question) > 0:
-                                # Ensure the question has the selected topic
-                                pm_question[0]['topic'] = topic
-                                pm_questions.extend(pm_question)
+                            pm_itemset = generate_original_pm_itemset(cfa_content, topic, i+1)
+                            if pm_itemset:
+                                pm_questions.append(pm_itemset)
                         
                         if pm_questions:
                             st.session_state.pm_questions = pm_questions
                             
                             # Show topic distribution
                             topics = [q.get('topic', 'Unknown') for q in pm_questions]
-                            st.success(f"✅ Generated {len(pm_questions)} PM item sets (6 questions each):")
+                            st.success(f"✅ Generated {len(pm_questions)} original PM item sets (6 questions each):")
                             for i, topic in enumerate(topics):
-                                st.info(f"  Item Set {i+1}: {topic} (6 questions)")
+                                st.info(f"  Item Set {i+1}: {topic} (6 questions) - Original scenario")
                             
                             save_session_state()
                             st.rerun()
